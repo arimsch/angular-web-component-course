@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1.1 Создание собственного веб-компонента</title>
+</head>
+<body>
+    <section>
+        <h2>1.1 Создание собственного веб-компонента</h2>
+        <div id="component-container"></div>
+    </section>
+    <script>
+        const insertElement = (el, containerId) => {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                console.error('Error inserting into DOM');
+                return;
+            }
+            container.appendChild(el);
+        }
+
+        const componentOptions = {
+            'my-select': [
+                { value: '1', label: 'Опция 1' },
+                { value: '2', label: 'Опция 2' },
+                { value: '3', label: 'Опция 3' },
+            ],
+        };
+
+        const onLoad = (evt) => {
+            const script = evt.target;
+            const componentName = script.dataset.name || 'default-name';
+            const newElement = document.createElement(componentName);
+            const options = componentOptions[componentName];
+            if (options) {
+                newElement.setAttribute('options', JSON.stringify(options));
+            }
+            insertElement(newElement, 'component-container');
+        };
+
+        const onError = (err) => {
+            const script = err.target;
+            const componentName = script.dataset.name || 'unknown';
+            console.error(`Loading error ${componentName}.js:`, err);
+            
+            const errorElement = document.createElement('p');
+            errorElement.textContent = `Ошибка загрузки компонента ${componentName}`;
+            errorElement.style.color = 'red';
+            insertElement(errorElement, 'component-container');
+        };
+
+        const components = ['my-select'];
+
+        components.forEach(component => {
+            const script = document.createElement('script');
+            script.src = `./${component}/${component}.js`;
+            script.dataset.name = component;
+            script.addEventListener('load', onLoad);
+            script.addEventListener('error', onError);
+            document.body.append(script);
+        });
+    </script>
+</body>
+</html>
