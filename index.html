@@ -20,10 +20,22 @@
             container.appendChild(el);
         }
 
+        const componentOptions = {
+            'my-select': [
+                { value: '1', label: 'Опция 1' },
+                { value: '2', label: 'Опция 2' },
+                { value: '3', label: 'Опция 3' },
+            ],
+        };
+
         const onLoad = (evt) => {
             const script = evt.target;
             const componentName = script.dataset.name || 'default-name';
             const newElement = document.createElement(componentName);
+            const options = componentOptions[componentName];
+            if (options) {
+                newElement.setAttribute('options', JSON.stringify(options));
+            }
             insertElement(newElement, 'component-container');
         };
 

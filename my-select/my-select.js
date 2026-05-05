@@ -1,16 +1,41 @@
-class MySelect extends HTMLElement {
-  constructor(){
-    super();
+const componentName = document.currentScript?.dataset?.name;
 
-    const shadow = this.attachShadow({ mode: 'open' });
-    shadow.innerHTML = `
-            <select>
-                <option value="1">Опция 1</option>
-                <option value="2">Опция 2</option>
-                <option value="3">Опция 3</option>
-            </select>
-    `;
+class MySelect extends HTMLElement {
+  #rendered = false;
+
+  constructor() {
+    super();
+    this.attachShadow({ mode: "open" });
+  }
+
+  connectedCallback() {
+    if (this.#rendered) return;
+    this.#rendered = true;
+
+    const select = document.createElement("select");
+    select.append(
+      ...this.#parseOptions().map(({ value, label }) => {
+        const option = document.createElement("option");
+        option.value = String(value);
+        option.textContent = String(label);
+        return option;
+      }),
+    );
+    this.shadowRoot.append(select);
+  }
+
+  #parseOptions() {
+    const raw = this.getAttribute("options");
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
   }
 }
 
-customElements.define('my-select', MySelect);
+if (componentName && !customElements.get(componentName)) {
+  customElements.define(componentName, MySelect);
+}
